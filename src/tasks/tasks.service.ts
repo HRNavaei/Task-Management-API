@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
-import { ITask } from './task.model';
+import { ITask, TaskStatus } from './task.model';
 import { CreateTaskDto } from './create-task.dto';
+import { UpdateTaskDto } from './update-task.dto';
 
 export class TasksService {
   private tasks: ITask[] = [];
@@ -24,7 +25,35 @@ export class TasksService {
     return task;
   }
 
-  deleteTask(id: string): void {
-    this.tasks = this.tasks.filter((task) => task.id !== id);
+  updateTask(task: ITask, updateTaskDto: UpdateTaskDto): ITask {
+    if (
+      updateTaskDto.status &&
+      !this.isValidStatusTransition(task.status, updateTaskDto.status)
+    ) {
+      throw WrongTaskStatusException();
+    }
+    Object.assign(task, updateTaskDto);
+    return task;
+  }
+
+  private isValidStatusTransition(
+    currentStatus: TaskStatus,
+    nextStatus: TaskStatus,
+  ): boolean {
+    const statusOrder = [
+      TaskStatus.OPEN,
+      TaskStatus.IN_PROGRESS,
+      TaskStatus.DONE,
+    ];
+
+    return (
+      statusOrder.indexOf(currentStatus) <= statusOrder.indexOf(nextStatus)
+    );
+  }
+
+  deleteTask(task: ITask): void {
+    this.tasks = this.tasks.filter(
+      (filteredTask) => filteredTask.id !== task.id,
+    );
   }
 }
