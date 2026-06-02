@@ -1,5 +1,5 @@
 import { TaskStatus } from './task.model';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTaskDto {
   @IsString()
@@ -10,7 +10,7 @@ export class CreateTaskDto {
   @IsNotEmpty()
   description: string;
 
-  @IsString()
+  @IsEnum(TaskStatus)
   @IsNotEmpty()
   status: TaskStatus;
 }
