@@ -9,12 +9,14 @@ import {
   NotFoundException,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateTaskDto } from './create-task.dto';
 import { FindOneParams } from './find-one.params';
 import { TasksService } from './tasks.service';
 import type { ITask } from './task.model';
 import { UpdateTaskDto } from './update-task.dto';
+import { WrongTaskStatusException } from './exceptions/wrong-task-status.exception';
 
 @Controller('tasks')
 export class TasksController {
@@ -51,9 +53,17 @@ export class TasksController {
     @Param() params: FindOneParams,
     @Body() updateTaskDto: UpdateTaskDto,
   ): ITask {
+    console.log('sth bad');
     const task = this.findOneOrFail(params.id);
 
-    return this.tasksService.updateTask(task, updateTaskDto);
+    try {
+      return this.tasksService.updateTask(task, updateTaskDto);
+    } catch (error) {
+      if (error instanceof WrongTaskStatusException) {
+        throw new BadRequestException();
+      }
+      throw error;
+    }
   }
 
   @Delete('/:id')

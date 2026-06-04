@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { ITask, TaskStatus } from './task.model';
 import { CreateTaskDto } from './create-task.dto';
 import { UpdateTaskDto } from './update-task.dto';
+import { WrongTaskStatusException } from './exceptions/wrong-task-status.exception';
 
 export class TasksService {
   private tasks: ITask[] = [];
@@ -30,7 +31,7 @@ export class TasksService {
       updateTaskDto.status &&
       !this.isValidStatusTransition(task.status, updateTaskDto.status)
     ) {
-      throw WrongTaskStatusException();
+      throw new WrongTaskStatusException();
     }
     Object.assign(task, updateTaskDto);
     return task;
