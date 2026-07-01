@@ -53,7 +53,6 @@ export class TasksController {
     @Param() params: FindOneParams,
     @Body() updateTaskDto: UpdateTaskDto,
   ): ITask {
-    console.log('sth bad');
     const task = this.findOneOrFail(params.id);
 
     try {
