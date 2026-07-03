@@ -14,7 +14,7 @@ import {
 import { CreateTaskDto } from './create-task.dto';
 import { FindOneParams } from './find-one.params';
 import { TasksService } from './tasks.service';
-import type { ITask } from './task.model';
+import { Task } from './task.entity';
 import { UpdateTaskDto } from './update-task.dto';
 import { WrongTaskStatusException } from './exceptions/wrong-task-status.exception';
 
@@ -23,18 +23,18 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Get('')
-  findAll(): ITask[] {
-    return this.tasksService.findAll();
+  async findAll(): Promise<Task[]> {
+    return await this.tasksService.findAll();
   }
 
   @Get('/:id')
-  findOne(@Param() params: FindOneParams): ITask {
-    return this.findOneOrFail(params.id);
+  async findOne(@Param() params: FindOneParams): Promise<Task> {
+    return await this.findOneOrFail(params.id);
   }
 
   @Post()
-  create(@Body() createTaskDto: CreateTaskDto): ITask {
-    return this.tasksService.create(createTaskDto);
+  async create(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
+    return await this.tasksService.createTask(createTaskDto);
   }
 
   // @Patch('/:id/status')
@@ -49,31 +49,32 @@ export class TasksController {
   // }
 
   @Patch('/:id')
-  updateTask(
+  async updateTask(
     @Param() params: FindOneParams,
     @Body() updateTaskDto: UpdateTaskDto,
-  ): ITask {
-    const task = this.findOneOrFail(params.id);
+  ): Promise<Task> {
+    const task = await this.findOneOrFail(params.id);
 
     try {
-      return this.tasksService.updateTask(task, updateTaskDto);
+      return await this.tasksService.updateTask(task, updateTaskDto);
     } catch (error) {
-      if (error instanceof WrongTaskStatusException) {
-        throw new BadRequestException();
-      }
+      [WrongTaskStatusException].forEach((error1) => {
+        if (error instanceof error1) throw new BadRequestException();
+      });
+
       throw error;
     }
   }
 
   @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteTask(@Param() params: FindOneParams): void {
-    const task = this.findOneOrFail(params.id);
-    this.tasksService.deleteTask(task);
+  async deleteTask(@Param() params: FindOneParams): Promise<void> {
+    const task = await this.findOneOrFail(params.id);
+    await this.tasksService.deleteTask(task);
   }
 
-  private findOneOrFail(id: string): ITask {
-    const task = this.tasksService.findOne(id);
+  private async findOneOrFail(id: string): Promise<Task> {
+    const task = await this.tasksService.findOne(id);
 
     if (!task) throw new NotFoundException();
 
