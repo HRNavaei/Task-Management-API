@@ -11,6 +11,7 @@ import { typeOrmConfig } from './config/database.config';
 import { ConfigType, appConfigSchema } from './config/config.types';
 import { TypedConfigService } from './config/typed-config.service';
 import { Task } from './tasks/task.entity';
+import { User } from './users/user.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { Task } from './tasks/task.entity';
       inject: [ConfigService],
       useFactory: (configService: TypedConfigService) => ({
         ...configService.get<ConfigType['database']>('database'),
-        entities: [Task],
+        entities: [Task, User],
       }),
     }),
     // TypeOrmModule.forRoot(typeOrmConfig()),
