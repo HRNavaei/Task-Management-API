@@ -12,6 +12,7 @@ import { ConfigType, appConfigSchema } from './config/config.types';
 import { TypedConfigService } from './config/typed-config.service';
 import { Task } from './tasks/task.entity';
 import { User } from './users/user.entity';
+import { TaskLabel } from './tasks/task-label.entity';
 
 @Module({
   imports: [
@@ -20,10 +21,9 @@ import { User } from './users/user.entity';
       inject: [ConfigService],
       useFactory: (configService: TypedConfigService) => ({
         ...configService.get<ConfigType['database']>('database'),
-        entities: [Task, User],
+        entities: [User, Task, TaskLabel],
       }),
     }),
-    // TypeOrmModule.forRoot(typeOrmConfig()),
     ConfigModule.forRoot({
       load: [appConfig, typeOrmConfig],
       validationSchema: appConfigSchema,
